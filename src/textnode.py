@@ -1,6 +1,6 @@
 from enum import Enum
 
-class TextType(Enum): # html-taggar eller klartext??
+class TextType(Enum):
     NORMAL = 'normal'
     BOLD = 'bold'
     ITALIC = 'italic'
@@ -10,13 +10,17 @@ class TextType(Enum): # html-taggar eller klartext??
 
 class TextNode:
 
-    def __init__(self, text, text_type, url):
+    def __init__(self, text, text_type, url=None):
         self.text = text
         self.text_type = text_type
         self.url = url
     
     def __eq__(self, other):
-        return self.__init__ == other.__init__
+        if isinstance(other, TextNode):
+            return (self.text == other.text
+                    and self.text_type == other.text_type
+                    and self.url == other.url) 
+        return False
     
     def __repr__(self):
-        return list(str(self.text, self.text_type, self.url))
+        return f"TextNode({self.text}, {self.text_type}, {self.url})"

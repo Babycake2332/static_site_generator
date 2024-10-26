@@ -1,9 +1,13 @@
 from textnode import TextNode
 
-object = TextNode('Hey there folks', 'normal', 'https://123.se')
-other_object = TextNode('Haha', 'bold', 'urldefault')
-print(object.text)
-print(object.text_type)
-print(object.url)
+def main():
+    object = TextNode('Hey there folks', 'normal')
+    other_object = TextNode('Hey there folks', 'normal')
 
-print(object.__eq__(other_object))
+    print(object.__eq__(other_object))
+    print(object)
+
+
+
+if __name__ == '__main__':
+    main()
