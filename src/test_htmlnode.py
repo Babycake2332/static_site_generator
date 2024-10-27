@@ -22,7 +22,11 @@ class TestHTMLNode(unittest.TestCase):
     def test_props_single(self):
         node = HTMLNode(props={'href': 'https://www.google.com',})
         self.assertEqual(node.props_to_html(), ' href="https://www.google.com"')
-       
+
+
+
+class TestLeafNode(unittest.TestCase):
+
     def test_leaf_to_html(self):
         leaf_node = LeafNode(tag="p", value="This is a paragraph")
         result = leaf_node.to_html()
@@ -44,6 +48,15 @@ class TestHTMLNode(unittest.TestCase):
         leaf_node = LeafNode(value="This is just plain text")
 
         self.assertEqual(leaf_node.to_html(), "This is just plain text")
+
+
+class TestParentNode(unittest.TestCase):
+    pass
+    # empty tag
+    # empty child (2 tests - None and empty list)
+    # deeply nested list (3 layers, different class objects (Parent, Leaf))
+    # correct output (check string formatting)
+    # with props dictionary (link)
 
 if __name__ == '__main__':
     unittest.main()
