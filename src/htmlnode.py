@@ -30,9 +30,34 @@ class LeafNode(HTMLNode):
     def to_html(self):
         if self.value == None or self.value == "":
             raise ValueError("LeafNode is missing required value.")
-        
         elif self.tag == None:
             return f"{self.value}"
-        
         props_attr = super().props_to_html()
         return f"<{self.tag}{props_attr}>{self.value}</{self.tag}>"
+
+class ParentNode(HTMLNode):
+
+    def __init__(self, children, tag=None, props=None):
+        super().__init__(tag, None, children, props)
+    
+    def to_html(self):
+        if self.tag == None:
+            raise ValueError("ParentNode is missing the required tag")
+        elif len(self.children) == 0:
+            raise ValueError("ParentNode is missing the required children")
+        
+        html_string = ""
+        for child in self.children:
+            html_string += "".join(child.to_html())
+        return f"<{self.tag}>{html_string}</{self.tag}>"
+            
+
+parent = ParentNode(tag="p", 
+                    children=[LeafNode(tag="b", value="Bold text"), 
+                           LeafNode(tag=None, value="Normal text"), 
+                           LeafNode(tag="i", value="italic text"),
+                           LeafNode(tag=None, value="Normal text"),
+                           ],
+                           )
+
+print(parent.to_html())
