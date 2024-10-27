@@ -59,7 +59,12 @@ class ParentNode(HTMLNode):
 
 parent = ParentNode(tag="p", 
                     children=[LeafNode(tag="b", value="Bold text"), 
-                           LeafNode(tag=None, value="Normal text"), 
+                           LeafNode(tag=None, value="Normal text"),
+                           ParentNode(tag="div",
+                                      children=[LeafNode(tag="a", value="Click me!", props={"href": "https://www.google.com", "target": "_blank"},),
+                                                LeafNode(tag=None, value="Normal Text"),
+                                                ],
+                                                ),
                            LeafNode(tag="i", value="italic text"),
                            LeafNode(tag=None, value="Normal text"),
                            ],
