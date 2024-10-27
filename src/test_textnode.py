@@ -8,20 +8,20 @@ class TestTextNode(unittest.TestCase):
         node2 = TextNode("This is a text node", TextType.BOLD)
         self.assertEqual(node, node2) # should return True
 
-    def test_eq_2(self):
+    def test_eq_not(self):
         node = TextNode("This is a text node", TextType.NORMAL)
         node2 = TextNode("This is a text node", TextType.CODE)
         self.assertNotEqual(node, node2) # should return False
     
-    def test_eq_3(self):
+    def test_eq_none(self):
         node = TextNode("This is a text node", TextType.NORMAL, None)
         node2 = TextNode("This is a text node", TextType.NORMAL, None)
-        self.assertEqual(node, node2) # should return False
+        self.assertEqual(node, node2) # should return True
     
-    def test_eq_4(self):
+    def test_eq_url(self):
         node = TextNode("This is a text node", TextType.IMAGE, "https://image.com")
         node2 = TextNode("This is a text node", TextType.IMAGE, "https://image.com")
-        self.assertEqual(node, node2) # should return True      
+        self.assertEqual(node, node2) # should return True   
 
 if __name__ == '__main__':
     unittest.main()
