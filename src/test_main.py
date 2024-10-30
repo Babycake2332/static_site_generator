@@ -1,10 +1,10 @@
 import unittest
 
-from main import text_node_to_html_node
+from main import text_node_to_html_node, split_nodes_delimiter
 from textnode import TextNode, TextType
 from htmlnode import HTMLNode, LeafNode
 
-class TestMainFunc(unittest.TestCase):
+class TestNodeToHTML(unittest.TestCase):
 
     def test_text_to_html_link_img(self):
         node_link = TextNode("Click me!", TextType.LINK, "https://www.google.se")
@@ -58,3 +58,20 @@ class TestMainFunc(unittest.TestCase):
         with self.assertRaises(AttributeError):
             text_node_to_html_node(node_3)
 
+class TestSplitNodes(unittest.TestCase):
+
+    def test_split_node_length(self):
+        node1 = TextNode("This is text is **bold** you know.", TextType.TEXT)
+        node2 = TextNode("This text is *italic* you know.", TextType.TEXT)
+        node3 = TextNode("This text is `code` you know.", TextType.TEXT)
+
+        node_list = [node1, node2, node3]
+
+        
+
+    def test_split_node_text(self):
+        #nodelimiter, only opening delimiter
+
+
+if __name__ == "__main__":
+    unittest.main()
