@@ -60,18 +60,66 @@ class TestNodeToHTML(unittest.TestCase):
 
 class TestSplitNodes(unittest.TestCase):
 
-    def test_split_node_length(self):
-        node1 = TextNode("This is text is **bold** you know.", TextType.TEXT)
-        node2 = TextNode("This text is *italic* you know.", TextType.TEXT)
-        node3 = TextNode("This text is `code` you know.", TextType.TEXT)
+    def test_split_node_bold(self):
+        node = TextNode("This is **bold** text you know.", TextType.TEXT)
+        nodes = split_nodes_delimiter([node],"**", TextType.BOLD)
+        assert len(nodes) == 3
+        assert nodes[0].text == "This is "
+        assert nodes[0].text_type == TextType.TEXT
+        assert nodes[1].text == "bold"
+        assert nodes[1].text_type == TextType.BOLD
+        assert nodes[2].text == " text you know."
+        assert nodes[2].text_type == TextType.TEXT
 
-        node_list = [node1, node2, node3]
+    def test_split_node_italic(self):
+        node = TextNode("This text is *italic* you know.", TextType.TEXT)
+        nodes = split_nodes_delimiter([node],"*", TextType.ITALIC)
+        assert len(nodes) == 3
+        assert nodes[0].text == "This text is "
+        assert nodes[0].text_type == TextType.TEXT
+        assert nodes[1].text == "italic"
+        assert nodes[1].text_type == TextType.ITALIC
+        assert nodes[2].text == " you know."
+        assert nodes[2].text_type == TextType.TEXT
+    
 
+    def test_split_node_code(self):
+        node = TextNode("This text is `code` you know.", TextType.TEXT)
+        nodes = split_nodes_delimiter([node],"`", TextType.CODE)
+        assert len(nodes) == 3
+        assert nodes[0].text == "This text is "
+        assert nodes[0].text_type == TextType.TEXT
+        assert nodes[1].text == "code"
+        assert nodes[1].text_type == TextType.CODE
+        assert nodes[2].text == " you know."
+        assert nodes[2].text_type == TextType.TEXT
+
+
+    def test_split_node_broken_delimiter(self):
+        node = TextNode("This text is *broken you know.", TextType.TEXT)
+        nodes = split_nodes_delimiter([node],"*", TextType.ITALIC)
         
+        self.assertEqual([node], nodes)
 
-    def test_split_node_text(self):
-        #nodelimiter, only opening delimiter
+    def test_split_node_equal(self):
+        node = TextNode("This text is bold", TextType.BOLD)
+        nodes = split_nodes_delimiter([node], "**", TextType.BOLD)
 
+        self.assertEqual([node], nodes)
+
+
+
+'''
+"This has **two** bold **words**"
+"This has ** ** nothing"
+[TextNode("Hello", TextType.TEXT), TextNode("**bold** text", TextType.TEXT)]
+
+    What should happen with an invalid delimiter?
+    What about empty strings?
+    What about multiple pairs of delimiters?
+
+Remember to test both the text content and the text_type of each node!
+'''
 
 if __name__ == "__main__":
     unittest.main()
