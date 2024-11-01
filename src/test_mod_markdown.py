@@ -1,6 +1,6 @@
 import unittest
 
-from main import text_node_to_html_node, split_nodes_delimiter
+from mod_markdown import text_node_to_html_node, split_nodes_delimiter, extract_markdown_images, extract_markdown_links
 from textnode import TextNode, TextType
 from htmlnode import HTMLNode, LeafNode
 
@@ -120,6 +120,26 @@ class TestSplitNodes(unittest.TestCase):
 
 Remember to test both the text content and the text_type of each node!
 '''
+
+class TestExtractMD(unittest.TestCase):
+
+    def test_extract_md_correct(self):
+        text_img = "This is text with a ![rick roll](https://i.imgur.com/aKaOqIh.gif) and ![obi wan](https://i.imgur.com/fJRm4Vk.jpeg)"
+        text_link = "This is text with a link [to boot dev](https://www.boot.dev) and [to youtube](https://www.youtube.com/@bootdotdev)"
+        
+        self.assertEqual(extract_markdown_images(text_img),
+                         [('rick roll', 'https://i.imgur.com/aKaOqIh.gif'), ('obi wan', 'https://i.imgur.com/fJRm4Vk.jpeg')])
+        self.assertEqual(extract_markdown_links(text_link),
+                         [("to boot dev", "https://www.boot.dev"), ("to youtube", "https://www.youtube.com/@bootdotdev")])
+
+    def test_extract_md_broken(self):
+        pass # broken markdown
+
+    def test_extract_md_empty(self):
+        pass # empty string
+
+    def test_extract_md_inverted(self):
+        pass # inverted alt-text/url - anchor-text/url
 
 if __name__ == "__main__":
     unittest.main()
