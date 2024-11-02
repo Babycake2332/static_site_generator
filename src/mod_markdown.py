@@ -61,3 +61,18 @@ def extract_markdown_images(text):
 
 def extract_markdown_links(text):
     return re.findall(r"(?<!!)\[([^\[\]]*)\]\(([^\(\)]*)\)", text)
+
+def split_nodes_image(old_nodes):
+    extracted_text = []
+
+    for node in old_nodes:
+        extracted_text = extract_markdown_images(node.text)
+    
+
+def split_nodes_link(old_nodes):
+    pass
+
+
+node = TextNode("This is text with an img link ![to imglink](https://www.123.se/wWerx234/) and ![to youtube](https://www.youtube.com)", TextType.TEXT)
+
+print(split_nodes_image([node]))

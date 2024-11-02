@@ -133,7 +133,11 @@ class TestExtractMD(unittest.TestCase):
                          [("to boot dev", "https://www.boot.dev"), ("to youtube", "https://www.youtube.com/@bootdotdev")])
 
     def test_extract_md_broken(self):
-        pass # broken markdown
+        text_img = "This is text with a [rick roll](https://i.imgur.com/aKaOqIh.gif) and ![obi wan(https://i.imgur.com/fJRm4Vk.jpeg)"
+        text_link = "This is text with a link [to boot dev(https://www.boot.dev and to youtube](https://www.youtube.com/@bootdotdev)"
+        
+        assert extract_markdown_images(text_img) == []
+        # what should link output be?
 
     def test_extract_md_empty(self):
         pass # empty string
