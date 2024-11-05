@@ -1,7 +1,7 @@
 import unittest
 
 from mod_markdown import text_node_to_html_node, split_nodes_delimiter, extract_markdown_images, extract_markdown_links
-from mod_markdown import split_nodes_image, split_nodes_link, text_to_textnodes
+from mod_markdown import split_nodes_image, split_nodes_link, text_to_textnodes, markdown_to_blocks
 from textnode import TextNode, TextType
 from htmlnode import HTMLNode, LeafNode
 
@@ -276,6 +276,56 @@ class MarkdownToNodes(unittest.TestCase):
 
         assert text_to_textnodes(raw) == None
 
+class MarkdownToBlocks(unittest.TestCase):
+
+    def test_markdown_to_blocks(self):
+        markdown = ("# This is a heading\n\n"
+
+        "This is a paragraph of text. It has some **bold** and *italic* words inside of it.\n\n"
+
+        "* This is the first list item in a list block\n"
+        "* This is a list item\n"
+        "* This is another list item\n\n"
+
+        "1. First item\n"
+        "2. Second item\n"
+        "3. Third item"
+        )
+
+        expected_result = ["# This is a heading",
+                                "This is a paragraph of text. It has some **bold** and *italic* words inside of it.",
+                                '* This is the first list item in a list block\n* This is a list item\n* This is another list item',
+                                '1. First item\n2. Second item\n3. Third item'
+                                ]
+        
+        assert markdown_to_blocks(markdown) == expected_result
+
+    def test_markdown_to_blocks_type_error(self):
+        markdown1 = ""
+        markdown2 = 1
+        markdown3 = 3.14
+        markdown4 = ["list of stuff"]
+
+        assert markdown_to_blocks(markdown1) == []
+        assert markdown_to_blocks(markdown2) == []
+        assert markdown_to_blocks(markdown3) == []
+        assert markdown_to_blocks(markdown4) == []
+
+    def test_markdown_to_blocks_whitespace(self):
+        markdown1 = "# Header 1\n\n\n\n\n\nParagraph text"
+        markdown2 = "     # Header 1      \n\n      Paragraph text     "
+        
+        expected_result = ["# Header 1", "Paragraph text"]
+        
+        assert markdown_to_blocks(markdown1) == expected_result
+        assert markdown_to_blocks(markdown2) == expected_result
+
+    def test_markdown_to_blocks_single(self):
+        markdown = "Just one block"
+
+        expected_result = ["Just one block"]
+
+        assert markdown_to_blocks(markdown) == expected_result
 
 if __name__ == "__main__":
     unittest.main()

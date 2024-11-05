@@ -2,6 +2,22 @@ import re
 from textnode import TextNode, TextType
 from htmlnode import LeafNode
 
+def text_node_to_html_node(text_node) -> LeafNode:
+
+    if not isinstance(text_node.text_type, TextType):
+        raise TypeError("Invalid text type")
+    elif not isinstance(text_node, TextNode):
+        raise AttributeError("Invalid object")
+
+    tag_value = text_node.text_type.value
+
+    if text_node.text_type == TextType.IMAGE:
+        text_node = LeafNode(tag=tag_value, value="", props={"src": text_node.url, "alt": text_node.text})
+    elif text_node.text_type == TextType.LINK:
+        text_node = LeafNode(tag=tag_value, value=text_node.text, props={"href": text_node.url})
+    else:
+        text_node = LeafNode(tag=tag_value, value=text_node.text)
+    return text_node
 
 def split_nodes_delimiter(old_nodes, delimiter, text_type):
     """Converts raw text nodes imported from markdown to new objects.
@@ -38,30 +54,6 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
     return new_nodes
 
 
-def text_node_to_html_node(text_node) -> LeafNode:
-
-    if not isinstance(text_node.text_type, TextType):
-        raise TypeError("Invalid text type")
-    elif not isinstance(text_node, TextNode):
-        raise AttributeError("Invalid object")
-
-    tag_value = text_node.text_type.value
-
-    if text_node.text_type == TextType.IMAGE:
-        text_node = LeafNode(tag=tag_value, value="", props={"src": text_node.url, "alt": text_node.text})
-    elif text_node.text_type == TextType.LINK:
-        text_node = LeafNode(tag=tag_value, value=text_node.text, props={"href": text_node.url})
-    else:
-        text_node = LeafNode(tag=tag_value, value=text_node.text)
-    return text_node
-
-
-def extract_markdown_images(text):
-    return re.findall(r"!\[([^\[\]]*)\]\(([^\(\)]*)\)", text)
-
-def extract_markdown_links(text):
-    return re.findall(r"(?<!!)\[([^\[\]]*)\]\(([^\(\)]*)\)", text)
-
 def split_nodes_image(old_nodes):
     new_nodes = []
 
@@ -89,6 +81,7 @@ def split_nodes_image(old_nodes):
             new_nodes.append(TextNode(current_text, TextType.TEXT))
 
     return new_nodes
+
 
 def split_nodes_link(old_nodes):
     new_nodes = []
@@ -118,6 +111,7 @@ def split_nodes_link(old_nodes):
             
     return new_nodes
 
+
 def text_to_textnodes(text):
     if text == "" or type(text) != str:
         return
@@ -136,3 +130,20 @@ def text_to_textnodes(text):
             old_nodes = split_nodes_link(old_nodes)
 
     return old_nodes
+
+def extract_markdown_images(text):
+    return re.findall(r"!\[([^\[\]]*)\]\(([^\(\)]*)\)", text)
+
+def extract_markdown_links(text):
+    return re.findall(r"(?<!!)\[([^\[\]]*)\]\(([^\(\)]*)\)", text)
+
+def markdown_to_blocks(markdown):
+    if markdown == "" or type(markdown) != str:
+        return []
+
+    blocks = re.split(r"\n\s*\n", markdown.strip())
+
+    for index, string in enumerate(blocks):
+        blocks[index] = string.strip()
+
+    return blocks
