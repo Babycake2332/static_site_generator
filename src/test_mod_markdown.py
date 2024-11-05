@@ -1,6 +1,7 @@
 import unittest
 
 from mod_markdown import text_node_to_html_node, split_nodes_delimiter, extract_markdown_images, extract_markdown_links
+from mod_markdown import split_nodes_image, split_nodes_link
 from textnode import TextNode, TextType
 from htmlnode import HTMLNode, LeafNode
 
@@ -107,8 +108,6 @@ class TestSplitNodes(unittest.TestCase):
 
         self.assertEqual([node], nodes)
 
-
-
 '''
 "This has **two** bold **words**"
 "This has ** ** nothing"
@@ -152,6 +151,75 @@ class TestExtractMD(unittest.TestCase):
 
         assert extract_markdown_images(text_img) == []
         assert extract_markdown_links(text_link) == []
+
+    def test_split_nodes(self):
+        image_node = [(TextNode("This is plain text ![alt text](www.image-url.com/)", TextType.TEXT))]
+        link_node = [(TextNode("This is plain text [anchor text](www.link-url.com/)", TextType.TEXT))]
+
+        expected_img_result = [
+            TextNode("This is plain text ", TextType.TEXT),
+            TextNode("alt text", TextType.IMAGE, "www.image-url.com/"),
+            ]
+        
+        expected_lnk_result = [
+            TextNode("This is plain text ", TextType.TEXT),
+            TextNode("anchor text", TextType.LINK, "www.link-url.com/"),
+            ]
+
+        self.assertEqual(split_nodes_image(image_node), expected_img_result)
+        self.assertEqual(split_nodes_link(link_node), expected_lnk_result)
+    
+    def test_split_nodes_double(self):
+        image_node = [(TextNode("This is plain text ![alt text](www.image-url.com/) and another link ![alt text 2](www.image-url.com/2) more text", TextType.TEXT))]
+        link_node = [(TextNode("This is plain text [anchor text](www.link-url.com/) and another link [anchor text 2](www.link-url.com/2) more text", TextType.TEXT))]
+
+        expected_img_result = [
+            TextNode("This is plain text ", TextType.TEXT),
+            TextNode("alt text", TextType.IMAGE, "www.image-url.com/"),
+            TextNode(" and another link ", TextType.TEXT),
+            TextNode("alt text 2", TextType.IMAGE, "www.image-url.com/2"),
+            TextNode(" more text", TextType.TEXT)
+            ]
+        
+        expected_lnk_result = [
+            TextNode("This is plain text ", TextType.TEXT),
+            TextNode("anchor text", TextType.LINK, "www.link-url.com/"),
+            TextNode(" and another link ", TextType.TEXT),
+            TextNode("anchor text 2", TextType.LINK, "www.link-url.com/2"),
+            TextNode(" more text", TextType.TEXT)
+            ]
+
+        self.assertEqual(split_nodes_image(image_node), expected_img_result)
+        self.assertEqual(split_nodes_link(link_node), expected_lnk_result)
+    
+    def test_split_nodes_empty(self):
+        node = []
+
+        assert split_nodes_image(node) == []
+        assert split_nodes_link(node) == []
+    
+    def test_split_nodes_only_md(self):
+        image_node = [TextNode("![alt](url)", TextType.TEXT)]
+        link_node = [TextNode("[anchor](url)", TextType.TEXT)]
+
+        expected_img_result = [TextNode("alt", TextType.IMAGE, "url")]
+        expected_lnk_result = [TextNode("anchor", TextType.LINK, "url")]
+
+        self.assertEqual(split_nodes_image(image_node), expected_img_result)
+        self.assertEqual(split_nodes_link(link_node), expected_lnk_result)
+
+    def test_split_nodes_adjacent(self):
+        image_node = [TextNode("![alt](url)![alt2](url2)", TextType.TEXT)]
+        link_node = [TextNode("[anchor](url)[anchor2](url2)", TextType.TEXT)]
+
+        expected_img_result = [TextNode("alt", TextType.IMAGE, "url"), TextNode("alt2", TextType.IMAGE, "url2")]
+        expected_lnk_result = [TextNode("anchor", TextType.LINK, "url"), TextNode("anchor2", TextType.LINK, "url2")]
+
+        self.assertEqual(split_nodes_image(image_node), expected_img_result)
+        self.assertEqual(split_nodes_link(link_node), expected_lnk_result)
+
+    def test_split_nodes_malformed_md(self):
+        pass
 
 if __name__ == "__main__":
     unittest.main()

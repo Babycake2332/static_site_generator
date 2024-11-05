@@ -82,29 +82,38 @@ def split_nodes_image(old_nodes):
             if sections[0]:
                 new_nodes.append(TextNode(sections[0], TextType.TEXT))
             new_nodes.append(TextNode(image_alt, TextType.IMAGE, image_url))
-            
+
             current_text = sections[1]
+
+        if current_text:
+            new_nodes.append(TextNode(current_text, TextType.TEXT))
 
     return new_nodes
 
 def split_nodes_link(old_nodes):
     new_nodes = []
-    extracted_result = []
 
     for node in old_nodes:
         if node.text_type != TextType.TEXT:
             new_nodes.append(node)
-        else:
-            extracted_result += extract_markdown_links(node.text)
+            continue
 
-    for text in extracted_result:
-        new_nodes.append(TextNode(text[0], TextType.LINK, text[1]))
+        matches = extract_markdown_links(node.text)
+        if not matches:
+            new_nodes.append(node)
+            continue
 
+        current_text = node.text
+        for anchor, url in matches:
+            sections = current_text.split(f"[{anchor}]({url})", 1)
+
+            if sections[0]:
+                new_nodes.append(TextNode(sections[0], TextType.TEXT))
+            new_nodes.append(TextNode(anchor, TextType.LINK, url))
+
+            current_text = sections[1]
+
+        if current_text:
+            new_nodes.append(TextNode(current_text, TextType.TEXT))
+            
     return new_nodes
-
-
-node = [(TextNode("This is text with an img link ![to imglink](https://www.123.se/wWerx234/) and ![to youtube](https://www.youtube.com) Click it now!", TextType.TEXT)),
-        (TextNode("This is a text with another img link ![to google](https://www.google.se/)", TextType.TEXT)),
-        (TextNode("123", TextType.TEXT))]
-
-print(split_nodes_image(node))
