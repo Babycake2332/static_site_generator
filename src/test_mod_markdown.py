@@ -361,7 +361,5 @@ class BlockToBlock(unittest.TestCase):
 
         assert block_to_block_type(block) == "paragraph"
 
-
-
 if __name__ == "__main__":
     unittest.main()
