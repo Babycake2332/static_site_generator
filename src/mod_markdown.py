@@ -117,3 +117,22 @@ def split_nodes_link(old_nodes):
             new_nodes.append(TextNode(current_text, TextType.TEXT))
             
     return new_nodes
+
+def text_to_textnodes(text):
+    if text == "" or type(text) != str:
+        return
+
+    old_nodes = [TextNode(text, TextType.TEXT)]
+
+    delimiter_map = {
+        '**': TextType.BOLD,
+        '*': TextType.ITALIC,
+        '`': TextType.CODE
+    }
+
+    for delimiter, text_type in delimiter_map.items():
+            old_nodes = split_nodes_delimiter(old_nodes, delimiter, text_type)
+            old_nodes = split_nodes_image(old_nodes)
+            old_nodes = split_nodes_link(old_nodes)
+
+    return old_nodes

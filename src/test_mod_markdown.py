@@ -1,7 +1,7 @@
 import unittest
 
 from mod_markdown import text_node_to_html_node, split_nodes_delimiter, extract_markdown_images, extract_markdown_links
-from mod_markdown import split_nodes_image, split_nodes_link
+from mod_markdown import split_nodes_image, split_nodes_link, text_to_textnodes
 from textnode import TextNode, TextType
 from htmlnode import HTMLNode, LeafNode
 
@@ -220,6 +220,62 @@ class TestExtractMD(unittest.TestCase):
 
     def test_split_nodes_malformed_md(self):
         pass
+
+class MarkdownToNodes(unittest.TestCase):
+
+    def test_text_to_textnodes(self):
+        raw1 = "This is **text** with an *italic* word and a `code block` and an ![obi wan image](https://i.imgur.com/fJRm4Vk.jpeg) and a [link](https://boot.dev)"
+        raw2 = "This is *italic* with `code` and an ![image](https://i.imgur.com/wfg.jpeg) and **bold** [link](https://boot.dev)"
+        raw3 = "This is *italic* with `code` and a [link](https://boot.dev) and **bold** ![image](https://i.imgur.com/wfg.jpeg)"
+
+        expected_result1 = [
+            TextNode("This is ", TextType.TEXT, None),
+            TextNode("text", TextType.BOLD, None),
+            TextNode(" with an ", TextType.TEXT, None),
+            TextNode("italic", TextType.ITALIC, None),
+            TextNode(" word and a ", TextType.TEXT, None),
+            TextNode("code block", TextType.CODE, None),
+            TextNode(" and an ", TextType.TEXT, None),
+            TextNode("obi wan image", TextType.IMAGE, "https://i.imgur.com/fJRm4Vk.jpeg"),
+            TextNode(" and a ", TextType.TEXT, None),
+            TextNode("link", TextType.LINK, "https://boot.dev"),
+            ]
+        
+        expected_result2 = [
+            TextNode("This is ", TextType.TEXT, None),
+            TextNode("italic", TextType.ITALIC, None),
+            TextNode(" with ", TextType.TEXT, None),
+            TextNode("code", TextType.CODE, None),
+            TextNode(" and an ", TextType.TEXT, None),
+            TextNode("image", TextType.IMAGE, "https://i.imgur.com/wfg.jpeg"),
+            TextNode(" and ", TextType.TEXT, None),
+            TextNode("bold", TextType.BOLD, None),
+            TextNode(" ", TextType.TEXT, None),
+            TextNode("link", TextType.LINK, "https://boot.dev"),
+            ]
+
+        expected_result3 = [
+            TextNode("This is ", TextType.TEXT, None),
+            TextNode("italic", TextType.ITALIC, None),
+            TextNode(" with ", TextType.TEXT, None),
+            TextNode("code", TextType.CODE, None),
+            TextNode(" and a ", TextType.TEXT, None),
+            TextNode("link", TextType.LINK, "https://boot.dev"),
+            TextNode(" and ", TextType.TEXT, None),
+            TextNode("bold", TextType.BOLD, None),
+            TextNode(" ", TextType.TEXT, None),
+            TextNode("image", TextType.IMAGE, "https://i.imgur.com/wfg.jpeg"),
+            ]
+
+        self.assertEqual(text_to_textnodes(raw1), expected_result1)
+        self.assertEqual(text_to_textnodes(raw2), expected_result2)
+        self.assertEqual(text_to_textnodes(raw3), expected_result3)
+    
+    def test_text_to_textnodes_empty(self):
+        raw = ""
+
+        assert text_to_textnodes(raw) == None
+
 
 if __name__ == "__main__":
     unittest.main()
