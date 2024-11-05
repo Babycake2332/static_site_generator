@@ -147,3 +147,40 @@ def markdown_to_blocks(markdown):
         blocks[index] = string.strip()
 
     return blocks
+
+def block_to_block_type(block):
+    heading = re.match(r"^\#{1,6}\s.*$", block, re.MULTILINE)
+    code = re.match(r"^(?:`{3})[\s\S]*?(?:`{3})$", block, re.MULTILINE)
+    quote = re.match(r"^>.*$", block, re.MULTILINE)
+
+    unordered_pattern = r"^(\*|-|\+)\s.*$"
+    unordered_list = re.findall(unordered_pattern, block, re.MULTILINE)
+
+    ordered_pattern = r"^\d+\.\s.*$"
+    ordered_list = re.findall(ordered_pattern, block, re.MULTILINE)
+    expected_number = 1
+    sequence_broken = False
+
+    if heading: 
+        return "heading"
+    elif code:
+        return "code"
+    elif quote:
+        return "quote"
+    elif unordered_list:
+        return "unordered list"
+    elif ordered_list:
+        for item in ordered_list:
+            match = re.match(r"^(\d+)\.", item.strip())
+
+            if match:
+                number = int(match.group(1))
+
+                if number != expected_number:
+                    sequence_broken = True
+                expected_number += 1
+
+        if not sequence_broken:  
+            return "ordered list"
+    
+    return "paragraph"

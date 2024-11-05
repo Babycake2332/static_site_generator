@@ -1,7 +1,7 @@
 import unittest
 
 from mod_markdown import text_node_to_html_node, split_nodes_delimiter, extract_markdown_images, extract_markdown_links
-from mod_markdown import split_nodes_image, split_nodes_link, text_to_textnodes, markdown_to_blocks
+from mod_markdown import split_nodes_image, split_nodes_link, text_to_textnodes, markdown_to_blocks, block_to_block_type
 from textnode import TextNode, TextType
 from htmlnode import HTMLNode, LeafNode
 
@@ -326,6 +326,42 @@ class MarkdownToBlocks(unittest.TestCase):
         expected_result = ["Just one block"]
 
         assert markdown_to_blocks(markdown) == expected_result
+
+class BlockToBlock(unittest.TestCase):
+
+    def test_block_to_block_type(self):
+        block1 = "Paragraph"
+        block2 = "# heading"
+        block3 = "## subheading 1"
+        block4 = "### subheading 2"
+        block5 = "#### subheading 3"
+        block6 = "##### subheading 4"
+        block7 = "###### subheading 5"
+        block8 = "```code```"
+        block9 = ">block quote"
+        block10 = "* first item\n* another item\n*yet another item"
+        block11 = "1. first item\n2. second item\n3. third item"
+
+        expected_results = ["paragraph", "heading", "code", "quote", "unordered list", "ordered list"]
+
+        assert block_to_block_type(block1) == expected_results[0]
+        assert block_to_block_type(block2) == expected_results[1]
+        assert block_to_block_type(block3) == expected_results[1]
+        assert block_to_block_type(block4) == expected_results[1]
+        assert block_to_block_type(block5) == expected_results[1]
+        assert block_to_block_type(block6) == expected_results[1]
+        assert block_to_block_type(block7) == expected_results[1]
+        assert block_to_block_type(block8) == expected_results[2]
+        assert block_to_block_type(block9) == expected_results[3]
+        assert block_to_block_type(block10) == expected_results[4]
+        assert block_to_block_type(block11) == expected_results[5]
+    
+    def test_block_to_block_type_empty(self):
+        block = ""
+
+        assert block_to_block_type(block) == "paragraph"
+
+
 
 if __name__ == "__main__":
     unittest.main()
