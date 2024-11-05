@@ -134,16 +134,24 @@ class TestExtractMD(unittest.TestCase):
 
     def test_extract_md_broken(self):
         text_img = "This is text with a [rick roll](https://i.imgur.com/aKaOqIh.gif) and ![obi wan(https://i.imgur.com/fJRm4Vk.jpeg)"
-        text_link = "This is text with a link [to boot dev(https://www.boot.dev and to youtube](https://www.youtube.com/@bootdotdev)"
+        text_link = "This is text with a link to boot dev(https://www.boot.dev) and to youtube(https://www.youtube.com/@bootdotdev)"
         
         assert extract_markdown_images(text_img) == []
-        # what should link output be?
+        assert extract_markdown_links(text_link) == []
 
     def test_extract_md_empty(self):
-        pass # empty string
+        text_img = ""
+        text_link = ""
+
+        assert extract_markdown_images(text_img) == []
+        assert extract_markdown_links(text_link) == []
 
     def test_extract_md_inverted(self):
-        pass # inverted alt-text/url - anchor-text/url
+        text_img = "This is text with a (https://i.imgur.com/aKaOqIh.gif)![rick roll] and (https://i.imgur.com/fJRm4Vk.jpeg)![obi wan]"
+        text_link = "This is text with a link to (https://www.boot.dev)[boot dev] and to (https://www.youtube.com/@bootdotdev)[youtube]"
+
+        assert extract_markdown_images(text_img) == []
+        assert extract_markdown_links(text_link) == []
 
 if __name__ == "__main__":
     unittest.main()
