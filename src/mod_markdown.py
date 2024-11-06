@@ -3,6 +3,8 @@ from textnode import TextNode, TextType
 from htmlnode import HTMLNode, LeafNode, ParentNode
 
 def markdown_to_html_node(markdown):
+    if type(markdown) != str:
+        raise TypeError("Provided markdown format is invalid.")
     # converts full md document to a single html node
     child_nodes = []
 
@@ -26,22 +28,48 @@ def markdown_to_html_node(markdown):
             child_nodes.append(header_node)
 
         elif block_type == "code":
+            code_text = block.strip("`")
+            code_node = HTMLNode(tag=TextType.CODE.value, value=code_text)
+            pre_node = HTMLNode(tag="pre", children=[code_node])
+            child_nodes.append(pre_node)
+
+        elif block_type == "quote":
+            quote_text = block.strip(">")
+            quote_node = HTMLNode(tag="blockquote", value=quote_text) #props: {"cite": "url"}
+            child_nodes.append(quote_node)
+        
+        elif block_type == "unordered list":
+            lines = block.splitlines()
+            uo_list_node = []
+
+            for line in lines:
+                if line.startswith("* ") or line.startswith("- ") or line.startswith("+ "):
+                    unordered_text = line[2:]
+                    uo_list_node.append(HTMLNode(tag="li", value=unordered_text))
+                
+            ul_node = HTMLNode(tag="ul", children=uo_list_node)
+            child_nodes.append(ul_node)
+
+        elif block_type == "ordered list":
+            lines = block.splitlines()
+            o_list_node = []
+
+            for line in lines:
+                if re.match(r"\d\.\s", line):
+                    period_pos = line.find(".")
+                    text_start = period_pos + 2
+                    ordered_text = line[text_start:]
+                    o_list_node.append(HTMLNode(tag="li", value=ordered_text))
+                
+            ol_node = HTMLNode(tag="ol", children=o_list_node)
+            child_nodes.append(ol_node)
+
+        elif block_type == "paragraph":
+            p_node = HTMLNode(tag="p", value=block)
+            child_nodes.append(p_node)
+
     return html_node
 
-
-'''
-        elif block_type == "code":
-            pass
-        elif block_type == "quote":
-            pass
-        elif block_type == "unordered list":
-            pass
-        elif block_type == "ordered list":
-            pass
-        else:
-            #"paragraph"
-            pass
-'''
 
 def count_header_symbols(block):
     count = 0
@@ -254,5 +282,5 @@ def block_to_block_type(block):
     
     return "paragraph"
 
-md = "# header *text* content"
+md = None
 print(markdown_to_html_node(md))
