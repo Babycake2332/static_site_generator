@@ -1,6 +1,6 @@
 import re
 from textnode import TextNode, TextType
-from htmlnode import HTMLNode, LeafNode, ParentNode
+from htmlnode import LeafNode, ParentNode
 
 def markdown_to_html_node(markdown):
     if type(markdown) != str:
@@ -8,7 +8,7 @@ def markdown_to_html_node(markdown):
     # converts full md document to a single html node
     child_nodes = []
 
-    html_node = HTMLNode(tag="div", children=child_nodes)
+    html_node = ParentNode(tag="div", children=child_nodes)
 
     blocks = markdown_to_blocks(markdown)
 
@@ -17,59 +17,68 @@ def markdown_to_html_node(markdown):
 
         if block_type == "heading":
             header_tag = count_header_symbols(block)
-            header_text = block.lstrip("# ").rstrip()
-            header_text_nodes = text_to_textnodes(header_text)
-
-            header_children = []
-            for text_node in header_text_nodes:
-                header_children.append(text_node_to_html_node(text_node))
+            text = block.lstrip("# ").rstrip()
+            children = text_to_children(text)
             
-            header_node = HTMLNode(tag=header_tag, children=header_children)
+            header_node = ParentNode(tag=header_tag, children=children)
             child_nodes.append(header_node)
 
         elif block_type == "code":
-            code_text = block.strip("`")
-            code_node = HTMLNode(tag=TextType.CODE.value, value=code_text)
-            pre_node = HTMLNode(tag="pre", children=[code_node])
+            text = block.strip("`")
+            children = text_to_children(text)
+            code_node = ParentNode(tag="code", children=children)
+            pre_node = ParentNode(tag="pre", children=[code_node])
             child_nodes.append(pre_node)
 
         elif block_type == "quote":
-            quote_text = block.strip(">")
-            quote_node = HTMLNode(tag="blockquote", value=quote_text) #props: {"cite": "url"}
+            text = block.strip(">")
+            children = text_to_children(text)
+            quote_node = ParentNode(tag="blockquote", children=children) #props: {"cite": "url"}
             child_nodes.append(quote_node)
         
         elif block_type == "unordered list":
             lines = block.splitlines()
-            uo_list_node = []
 
+            children = []
             for line in lines:
                 if line.startswith("* ") or line.startswith("- ") or line.startswith("+ "):
-                    unordered_text = line[2:]
-                    uo_list_node.append(HTMLNode(tag="li", value=unordered_text))
+                    text = line[2:]
+                    inline_children = text_to_children(text)
+                    children.append(ParentNode(tag="li", children=inline_children))
                 
-            ul_node = HTMLNode(tag="ul", children=uo_list_node)
+            ul_node = ParentNode(tag="ul", children=children)
             child_nodes.append(ul_node)
 
         elif block_type == "ordered list":
             lines = block.splitlines()
-            o_list_node = []
+            children = []
 
             for line in lines:
                 if re.match(r"\d\.\s", line):
                     period_pos = line.find(".")
                     text_start = period_pos + 2
-                    ordered_text = line[text_start:]
-                    o_list_node.append(HTMLNode(tag="li", value=ordered_text))
+                    text = line[text_start:]
+                    inline_children = text_to_children(text)
+                    children.append(ParentNode(tag="li", children=inline_children))
                 
-            ol_node = HTMLNode(tag="ol", children=o_list_node)
+            ol_node = ParentNode(tag="ol", children=children)
             child_nodes.append(ol_node)
 
         elif block_type == "paragraph":
-            p_node = HTMLNode(tag="p", value=block)
+            children = text_to_children(block)
+            p_node = ParentNode(tag="p", children=children)
             child_nodes.append(p_node)
 
     return html_node
 
+def text_to_children(text):
+    text_nodes = text_to_textnodes(text)
+
+    children = []
+    for text_node in text_nodes:
+        children.append(text_node_to_html_node(text_node))
+    
+    return children
 
 def count_header_symbols(block):
     count = 0
@@ -95,7 +104,7 @@ def count_header_symbols(block):
     
     return header_tag
 
-def text_node_to_html_node(text_node) -> HTMLNode:
+def text_node_to_html_node(text_node) -> LeafNode:
 
     if not isinstance(text_node.text_type, TextType):
         raise TypeError("Invalid text type")
@@ -105,11 +114,11 @@ def text_node_to_html_node(text_node) -> HTMLNode:
     tag_value = text_node.text_type.value
 
     if text_node.text_type == TextType.IMAGE:
-        text_node = HTMLNode(tag=tag_value, value="", props={"src": text_node.url, "alt": text_node.text})
+        text_node = LeafNode(tag=tag_value, value="", props={"src": text_node.url, "alt": text_node.text})
     elif text_node.text_type == TextType.LINK:
-        text_node = HTMLNode(tag=tag_value, value=text_node.text, props={"href": text_node.url})
+        text_node = LeafNode(tag=tag_value, value=text_node.text, props={"href": text_node.url})
     else:
-        text_node = HTMLNode(tag=tag_value, value=text_node.text)
+        text_node = LeafNode(tag=tag_value, value=text_node.text)
     return text_node
 
 def split_nodes_delimiter(old_nodes, delimiter, text_type):
@@ -214,7 +223,8 @@ def text_to_textnodes(text):
     delimiter_map = {
         '**': TextType.BOLD,
         '*': TextType.ITALIC,
-        '`': TextType.CODE
+        '`': TextType.CODE,
+        '>': TextType.QUOTE,
     }
 
     for delimiter, text_type in delimiter_map.items():
@@ -282,5 +292,5 @@ def block_to_block_type(block):
     
     return "paragraph"
 
-md = None
+md = "```block of code\n    another block```\n\n# This is a heading\n\n>Quotes"
 print(markdown_to_html_node(md))

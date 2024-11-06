@@ -30,7 +30,7 @@ class TestNodeToHTML(unittest.TestCase):
         result_code = text_node_to_html_node(node_code)
 
         expected_bold = LeafNode(tag="b", value="Bold text")
-        expected_italic = LeafNode(tag="i", value="Italic text")
+        expected_italic = LeafNode(tag="em", value="Italic text")
         expected_code = LeafNode(tag="code", value="Code format")
 
         self.assertEqual(result_bold, expected_bold)
@@ -42,7 +42,7 @@ class TestNodeToHTML(unittest.TestCase):
         node = TextNode("This is plain text", TextType.TEXT)
 
         result = text_node_to_html_node(node)
-        expected = LeafNode(tag="", value="This is plain text")
+        expected = LeafNode(tag="text", value="This is plain text")
 
         self.assertEqual(result, expected)
 

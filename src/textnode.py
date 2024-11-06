@@ -5,6 +5,7 @@ class TextType(Enum):
     BOLD = 'b'
     ITALIC = 'em'
     CODE = 'code'
+    QUOTE = 'blockquote'
     LINK = 'a'
     IMAGE = 'img'
 
