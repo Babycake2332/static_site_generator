@@ -2,7 +2,7 @@ import unittest
 
 from mod_markdown import text_node_to_html_node, split_nodes_delimiter, extract_markdown_images, extract_markdown_links
 from mod_markdown import split_nodes_image, split_nodes_link, text_to_textnodes, markdown_to_blocks, block_to_block_type
-from mod_markdown import markdown_to_html_node
+from mod_markdown import markdown_to_html_node, extract_title
 from textnode import TextNode, TextType
 from htmlnode import HTMLNode, LeafNode
 
@@ -394,6 +394,20 @@ class TestMarkdownToHTML(unittest.TestCase):
         self.assertEqual(result6, expected6)
     
     # add more tests for edge cases and errors.
+
+class TestMarkdownTitle(unittest.TestCase):
+
+    def test_extract_title(self):
+        md = "# heading\n\n>quote\n\nPlain text here"
+        result = extract_title(md)
+
+        assert result == "heading"
+
+    def test_extract_title_err(self):
+        md2 = "## heading"
+
+        with self.assertRaises(Exception):
+            extract_title(md2)
 
 if __name__ == "__main__":
     unittest.main()

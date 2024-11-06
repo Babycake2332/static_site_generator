@@ -2,6 +2,15 @@ import re
 from textnode import TextNode, TextType
 from htmlnode import LeafNode, ParentNode
 
+def extract_title(markdown):
+    pattern = re.match(r"^\#{1}\s.*", markdown)
+
+    if pattern:
+        return pattern.group().lstrip("# ").rstrip()
+    else:
+        raise Exception("No valid heading found.")
+
+
 def markdown_to_html_node(markdown):
     if type(markdown) != str:
         raise TypeError("Provided markdown format is invalid.")
@@ -114,7 +123,7 @@ def text_node_to_html_node(text_node) -> LeafNode:
     tag_value = text_node.text_type.value
 
     if text_node.text_type == TextType.IMAGE:
-        text_node = LeafNode(tag=tag_value, value="", props={"src": text_node.url, "alt": text_node.text})
+        text_node = LeafNode(tag=tag_value, value=" ", props={"src": text_node.url, "alt": text_node.text})
     elif text_node.text_type == TextType.LINK:
         text_node = LeafNode(tag=tag_value, value=text_node.text, props={"href": text_node.url})
     else:
@@ -216,7 +225,7 @@ def split_nodes_link(old_nodes):
 
 def text_to_textnodes(text):
     if text == "" or type(text) != str:
-        return
+        return []
 
     old_nodes = [TextNode(text, TextType.TEXT)]
 
@@ -291,6 +300,3 @@ def block_to_block_type(block):
             return "ordered list"
     
     return "paragraph"
-
-md = "1. first item\n2. second item\n3. third item"
-print(markdown_to_html_node(md))
