@@ -40,7 +40,7 @@ def markdown_to_html_node(markdown):
             child_nodes.append(pre_node)
 
         elif block_type == "quote":
-            text = block.strip(">")
+            text = block.strip("> ")
             children = text_to_children(text)
             quote_node = ParentNode(tag="blockquote", children=children) #props: {"cite": "url"}
             child_nodes.append(quote_node)
@@ -267,7 +267,7 @@ def markdown_to_blocks(markdown):
 def block_to_block_type(block):
     heading = re.match(r"^\#{1,6}\s.*$", block, re.MULTILINE)
     code = re.match(r"^(?:`{3})[\s\S]*?(?:`{3})$", block, re.MULTILINE)
-    quote = re.match(r"^>.*$", block, re.MULTILINE)
+    quote = re.match(r"^>\s.*$", block, re.MULTILINE)
 
     unordered_pattern = r"^(\*|-|\+)\s.*$"
     unordered_list = re.findall(unordered_pattern, block, re.MULTILINE)

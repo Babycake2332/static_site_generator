@@ -43,7 +43,7 @@ class LeafNode(HTMLNode):
             props_attr = super().props_to_html()
             return f"<{self.tag}{props_attr}/>"
         
-        elif self.tag == None:
+        elif self.tag == "text":
             return f"{self.value}"
         
         props_attr = super().props_to_html()
