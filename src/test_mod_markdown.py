@@ -2,6 +2,7 @@ import unittest
 
 from mod_markdown import text_node_to_html_node, split_nodes_delimiter, extract_markdown_images, extract_markdown_links
 from mod_markdown import split_nodes_image, split_nodes_link, text_to_textnodes, markdown_to_blocks, block_to_block_type
+from mod_markdown import markdown_to_html_node
 from textnode import TextNode, TextType
 from htmlnode import HTMLNode, LeafNode
 
@@ -221,7 +222,7 @@ class TestExtractMD(unittest.TestCase):
     def test_split_nodes_malformed_md(self):
         pass
 
-class MarkdownToNodes(unittest.TestCase):
+class TestMarkdownToNodes(unittest.TestCase):
 
     def test_text_to_textnodes(self):
         raw1 = "This is **text** with an *italic* word and a `code block` and an ![obi wan image](https://i.imgur.com/fJRm4Vk.jpeg) and a [link](https://boot.dev)"
@@ -276,7 +277,7 @@ class MarkdownToNodes(unittest.TestCase):
 
         assert text_to_textnodes(raw) == None
 
-class MarkdownToBlocks(unittest.TestCase):
+class TestMarkdownToBlocks(unittest.TestCase):
 
     def test_markdown_to_blocks(self):
         markdown = ("# This is a heading\n\n"
@@ -327,7 +328,7 @@ class MarkdownToBlocks(unittest.TestCase):
 
         assert markdown_to_blocks(markdown) == expected_result
 
-class BlockToBlock(unittest.TestCase):
+class TestBlockToBlock(unittest.TestCase):
 
     def test_block_to_block_type(self):
         block1 = "Paragraph"
@@ -360,6 +361,39 @@ class BlockToBlock(unittest.TestCase):
         block = ""
 
         assert block_to_block_type(block) == "paragraph"
+
+class TestMarkdownToHTML(unittest.TestCase):
+
+    def test_markdown_to_html(self):
+        paragraph = "paragraph"
+        heading = "# heading"
+        code = "``` code ```"
+        quote = ">quote"
+        unordered = "* item\n* another item"
+        ordered = "1. first item\n2. second item\n3. third item"
+
+        result1 = markdown_to_html_node(paragraph)
+        result2 = markdown_to_html_node(heading)
+        result3 = markdown_to_html_node(code)
+        result4 = markdown_to_html_node(quote)
+        result5 = markdown_to_html_node(unordered)
+        result6 = markdown_to_html_node(ordered)
+
+        expected1 = HTMLNode("div", None, [HTMLNode("p", None, [HTMLNode("text", "paragraph", None, None)], None)], None)
+        expected2 = HTMLNode("div", None, [HTMLNode("h1", None, [HTMLNode("text", "heading", None, None)], None)], None)
+        expected3 = HTMLNode("div", None, [HTMLNode("pre", None, [HTMLNode("code", None, [HTMLNode("text", " code ", None, None)], None)], None)], None)
+        expected4 = HTMLNode("div", None, [HTMLNode("blockquote", None, [HTMLNode("text", "quote", None, None)], None)], None)
+        expected5 = HTMLNode("div", None, [HTMLNode("ul", None, [HTMLNode("li", None, [HTMLNode("text", "item", None, None)], None), HTMLNode("li", None, [HTMLNode("text", "another item", None, None)], None)], None)], None)
+        expected6 = HTMLNode("div", None, [HTMLNode("ol", None, [HTMLNode("li", None, [HTMLNode("text", "first item", None, None)], None), HTMLNode("li", None, [HTMLNode("text", "second item", None, None)], None), HTMLNode("li", None, [HTMLNode("text", "third item", None, None)], None)], None)], None)
+
+        self.assertEqual(result1, expected1)
+        self.assertEqual(result2, expected2)
+        self.assertEqual(result3, expected3)
+        self.assertEqual(result4, expected4)
+        self.assertEqual(result5, expected5)
+        self.assertEqual(result6, expected6)
+    
+    # add more tests for edge cases and errors.
 
 if __name__ == "__main__":
     unittest.main()

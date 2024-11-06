@@ -48,7 +48,6 @@ class LeafNode(HTMLNode):
 
 
 
-
 class ParentNode(HTMLNode):
 
     def __init__(self, children, tag=None, props=None):
