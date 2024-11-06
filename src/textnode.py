@@ -1,9 +1,9 @@
 from enum import Enum
 
 class TextType(Enum):
-    TEXT = ''
+    TEXT = 'text'
     BOLD = 'b'
-    ITALIC = 'i'
+    ITALIC = 'em'
     CODE = 'code'
     LINK = 'a'
     IMAGE = 'img'

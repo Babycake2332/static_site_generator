@@ -1,8 +1,73 @@
 import re
 from textnode import TextNode, TextType
-from htmlnode import LeafNode
+from htmlnode import HTMLNode, LeafNode, ParentNode
 
-def text_node_to_html_node(text_node) -> LeafNode:
+def markdown_to_html_node(markdown):
+    # converts full md document to a single html node
+    child_nodes = []
+
+    html_node = HTMLNode(tag="div", children=child_nodes)
+
+    blocks = markdown_to_blocks(markdown)
+
+    for block in blocks:
+        block_type = block_to_block_type(block)
+
+        if block_type == "heading":
+            header_tag = count_header_symbols(block)
+            header_text = block.lstrip("# ").rstrip()
+            header_text_nodes = text_to_textnodes(header_text)
+
+            header_children = []
+            for text_node in header_text_nodes:
+                header_children.append(text_node_to_html_node(text_node))
+            
+            header_node = HTMLNode(tag=header_tag, children=header_children)
+            child_nodes.append(header_node)
+
+        elif block_type == "code":
+    return html_node
+
+
+'''
+        elif block_type == "code":
+            pass
+        elif block_type == "quote":
+            pass
+        elif block_type == "unordered list":
+            pass
+        elif block_type == "ordered list":
+            pass
+        else:
+            #"paragraph"
+            pass
+'''
+
+def count_header_symbols(block):
+    count = 0
+    header_tag = ""
+
+    for char in block:
+        if char == "#":
+            count += 1
+    if count > 6:
+        return ""
+    elif count == 1:
+        header_tag = "h1"
+    elif count == 2:
+        header_tag = "h2"
+    elif count == 3:
+        header_tag = "h3"
+    elif count == 4:
+        header_tag = "h4"
+    elif count == 5:
+        header_tag = "h5"
+    else:
+        header_tag = "h6"
+    
+    return header_tag
+
+def text_node_to_html_node(text_node) -> HTMLNode:
 
     if not isinstance(text_node.text_type, TextType):
         raise TypeError("Invalid text type")
@@ -12,11 +77,11 @@ def text_node_to_html_node(text_node) -> LeafNode:
     tag_value = text_node.text_type.value
 
     if text_node.text_type == TextType.IMAGE:
-        text_node = LeafNode(tag=tag_value, value="", props={"src": text_node.url, "alt": text_node.text})
+        text_node = HTMLNode(tag=tag_value, value="", props={"src": text_node.url, "alt": text_node.text})
     elif text_node.text_type == TextType.LINK:
-        text_node = LeafNode(tag=tag_value, value=text_node.text, props={"href": text_node.url})
+        text_node = HTMLNode(tag=tag_value, value=text_node.text, props={"href": text_node.url})
     else:
-        text_node = LeafNode(tag=tag_value, value=text_node.text)
+        text_node = HTMLNode(tag=tag_value, value=text_node.text)
     return text_node
 
 def split_nodes_delimiter(old_nodes, delimiter, text_type):
@@ -131,11 +196,14 @@ def text_to_textnodes(text):
 
     return old_nodes
 
+
 def extract_markdown_images(text):
     return re.findall(r"!\[([^\[\]]*)\]\(([^\(\)]*)\)", text)
 
+
 def extract_markdown_links(text):
     return re.findall(r"(?<!!)\[([^\[\]]*)\]\(([^\(\)]*)\)", text)
+
 
 def markdown_to_blocks(markdown):
     if markdown == "" or type(markdown) != str:
@@ -147,6 +215,7 @@ def markdown_to_blocks(markdown):
         blocks[index] = string.strip()
 
     return blocks
+
 
 def block_to_block_type(block):
     heading = re.match(r"^\#{1,6}\s.*$", block, re.MULTILINE)
@@ -184,3 +253,6 @@ def block_to_block_type(block):
             return "ordered list"
     
     return "paragraph"
+
+md = "# header *text* content"
+print(markdown_to_html_node(md))
