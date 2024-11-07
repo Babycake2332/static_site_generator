@@ -1,5 +1,29 @@
 import os, shutil, errno
 from mod_markdown import markdown_to_html_node, extract_title
+from pathlib import Path
+
+dir_path_static = "./static"
+dir_path_public = "./public"
+dir_path_content = "./content"
+template_path = "./template.html"
+
+def main():
+
+    copy_files(dir_path_static, dir_path_public)
+    generate_pages_recursive(dir_path_content, template_path, dir_path_public)
+
+
+
+def generate_pages_recursive(dir_path_content, template_path, dest_dir_path): # This function written by boot.dev
+    
+    for filename in os.listdir(dir_path_content):
+        from_path = os.path.join(dir_path_content, filename)
+        dest_path = os.path.join(dest_dir_path, filename)
+        if os.path.isfile(from_path):
+            dest_path = Path(dest_path).with_suffix(".html")
+            generate_page(from_path, template_path, dest_path)
+        else:
+            generate_pages_recursive(from_path, template_path, dest_path)
 
 def generate_page(from_path, template_path, dest_path):
     print(f"Generating page from {from_path} to {dest_path} using {template_path}")
@@ -38,17 +62,6 @@ def copy_files(src, dest):
             shutil.copy2(src, dest)
         else:
             print("Error % s" % err)
-
-
-def main():
-    src = f"{os.getcwd()}/static"
-    dest = f"{os.getcwd()}/public"
-
-    from_path = "content/index.md"
-    temp_path = "./template.html"
-    dest_path = "public/index.html"
-    copy_files(src, dest)
-    generate_page(from_path, temp_path, dest_path)
 
 
 
